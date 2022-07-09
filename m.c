@@ -37,23 +37,34 @@ int main(int argc, char *argv[])
     SDL_Color black = {.r=0x11, .g=0x11, .b=0x00, .a=0xFF};
     SDL_Color white = {.r=0xEE, .g=0xEE, .b=0xDD, .a=0xFF};
     SDL_Texture *pieces_tex[NUM_PIECES];
-    pieces_tex[BLACK_PAWN_A] = NULL; piece_load_art(ren, &pieces_tex[BLACK_PAWN_A], "pawn.txt", black);
-    /* SDL_Texture *BApawn_tex   = NULL; piece_load_art(ren, &BApawn_tex, "pawn.txt", black);    // */
-    SDL_Texture *WApawn_tex   = NULL; piece_load_art(ren, &WApawn_tex, "pawn.txt", white);    //
-    SDL_Texture *BBpawn_tex   = NULL; piece_load_art(ren, &BBpawn_tex, "pawn.txt", black);    //
-    SDL_Texture *WBpawn_tex   = NULL; piece_load_art(ren, &WBpawn_tex, "pawn.txt", white);    //
-    SDL_Texture *BCpawn_tex   = NULL; piece_load_art(ren, &BCpawn_tex, "pawn.txt", black);    //
-    SDL_Texture *WCpawn_tex   = NULL; piece_load_art(ren, &WCpawn_tex, "pawn.txt", white);    //
-    SDL_Texture *BDpawn_tex   = NULL; piece_load_art(ren, &BDpawn_tex, "pawn.txt", black);    //
-    SDL_Texture *WDpawn_tex   = NULL; piece_load_art(ren, &WDpawn_tex, "pawn.txt", white);    //
-    SDL_Texture *BEpawn_tex   = NULL; piece_load_art(ren, &BEpawn_tex, "pawn.txt", black);    //
-    SDL_Texture *WEpawn_tex   = NULL; piece_load_art(ren, &WEpawn_tex, "pawn.txt", white);    //
-    SDL_Texture *BFpawn_tex   = NULL; piece_load_art(ren, &BFpawn_tex, "pawn.txt", black);    //
-    SDL_Texture *WFpawn_tex   = NULL; piece_load_art(ren, &WFpawn_tex, "pawn.txt", white);    //
-    SDL_Texture *BGpawn_tex   = NULL; piece_load_art(ren, &BGpawn_tex, "pawn.txt", black);    //
-    SDL_Texture *WGpawn_tex   = NULL; piece_load_art(ren, &WGpawn_tex, "pawn.txt", white);    //
-    SDL_Texture *BHpawn_tex   = NULL; piece_load_art(ren, &BHpawn_tex, "pawn.txt", black);    //
-    SDL_Texture *WHpawn_tex   = NULL; piece_load_art(ren, &WHpawn_tex, "pawn.txt", white);    //
+    for(int i=0; i<16; i++)                                       // TODO: change to 32
+    {
+        /* char *file = NULL; SDL_Color color; */
+        char *file; SDL_Color color;
+        switch(i)
+        {
+            case BLACK_PAWN_A: file = "pawn.txt"; color = black; break;
+            case BLACK_PAWN_B: file = "pawn.txt"; color = black; break;
+            case BLACK_PAWN_C: file = "pawn.txt"; color = black; break;
+            case BLACK_PAWN_D: file = "pawn.txt"; color = black; break;
+            case BLACK_PAWN_E: file = "pawn.txt"; color = black; break;
+            case BLACK_PAWN_F: file = "pawn.txt"; color = black; break;
+            case BLACK_PAWN_G: file = "pawn.txt"; color = black; break;
+            case BLACK_PAWN_H: file = "pawn.txt"; color = black; break;
+            case WHITE_PAWN_A: file = "pawn.txt"; color = white; break;
+            case WHITE_PAWN_B: file = "pawn.txt"; color = white; break;
+            case WHITE_PAWN_C: file = "pawn.txt"; color = white; break;
+            case WHITE_PAWN_D: file = "pawn.txt"; color = white; break;
+            case WHITE_PAWN_E: file = "pawn.txt"; color = white; break;
+            case WHITE_PAWN_F: file = "pawn.txt"; color = white; break;
+            case WHITE_PAWN_G: file = "pawn.txt"; color = white; break;
+            case WHITE_PAWN_H: file = "pawn.txt"; color = white; break;
+            default: break; // file="pawn.xt"; color = black; break;
+        }
+        /* printf("i: %d, file: %s\n", i, file); fflush(stdout); */
+        pieces_tex[i] = NULL; piece_load_art(ren, &(pieces_tex[i]), file, color);
+        // pieces_tex[BLACK_PAWN_A] = NULL; piece_load_art(ren, &pieces_tex[BLACK_PAWN_A], "pawn.txt", black);
+    }
     SDL_Texture *BBknight_tex = NULL; piece_load_art(ren, &BBknight_tex, "knight.txt", black);// Load black knight art
     SDL_Texture *WBknight_tex = NULL; piece_load_art(ren, &WBknight_tex, "knight.txt", white);// Load white knight art
     SDL_Texture *BGknight_tex = NULL; piece_load_art(ren, &BGknight_tex, "knight.txt", black);// Load black knight art
@@ -172,22 +183,21 @@ int main(int argc, char *argv[])
             int piece_dim = calc_piece_dim(wI.w, wI.h);
             // Pawns
             piece_render(ren, pieces_tex[BLACK_PAWN_A], wI.w, wI.h, 0,1);
-            /* piece_render(ren, BApawn_tex, wI.w, wI.h, 0,1);     // Black pawn at a7 */
-            piece_render(ren, WApawn_tex, wI.w, wI.h, 0,6);     // White pawn at a2
-            piece_render(ren, BBpawn_tex, wI.w, wI.h, 1,1);     // Black pawn at b7
-            piece_render(ren, WBpawn_tex, wI.w, wI.h, 1,6);     // White pawn at b2
-            piece_render(ren, BCpawn_tex, wI.w, wI.h, 2,1);     // Black pawn at c7
-            piece_render(ren, WCpawn_tex, wI.w, wI.h, 2,6);     // White pawn at c2
-            piece_render(ren, BDpawn_tex, wI.w, wI.h, 3,1);     // Black pawn at d7
-            piece_render(ren, WDpawn_tex, wI.w, wI.h, 3,6);     // White pawn at d2
-            piece_render(ren, BEpawn_tex, wI.w, wI.h, 4,1);     // Black pawn at e7
-            piece_render(ren, WEpawn_tex, wI.w, wI.h, 4,6);     // White pawn at e2
-            piece_render(ren, BFpawn_tex, wI.w, wI.h, 5,1);     // Black pawn at f7
-            piece_render(ren, WFpawn_tex, wI.w, wI.h, 5,6);     // White pawn at f2
-            piece_render(ren, BGpawn_tex, wI.w, wI.h, 6,1);     // Black pawn at g7
-            piece_render(ren, WGpawn_tex, wI.w, wI.h, 6,6);     // White pawn at g2
-            piece_render(ren, BHpawn_tex, wI.w, wI.h, 7,1);     // Black pawn at h7
-            piece_render(ren, WHpawn_tex, wI.w, wI.h, 7,6);     // White pawn at h2
+            piece_render(ren, pieces_tex[BLACK_PAWN_B], wI.w, wI.h, 1,1);     // Black pawn at b7
+            piece_render(ren, pieces_tex[BLACK_PAWN_C], wI.w, wI.h, 2,1);     // Black pawn at c7
+            piece_render(ren, pieces_tex[BLACK_PAWN_D], wI.w, wI.h, 3,1);     // Black pawn at d7
+            piece_render(ren, pieces_tex[BLACK_PAWN_E], wI.w, wI.h, 4,1);     // Black pawn at e7
+            piece_render(ren, pieces_tex[BLACK_PAWN_F], wI.w, wI.h, 5,1);     // Black pawn at f7
+            piece_render(ren, pieces_tex[BLACK_PAWN_G], wI.w, wI.h, 6,1);     // Black pawn at g7
+            piece_render(ren, pieces_tex[BLACK_PAWN_H], wI.w, wI.h, 7,1);     // Black pawn at h7
+            piece_render(ren, pieces_tex[WHITE_PAWN_A], wI.w, wI.h, 0,6);     // White pawn at a2
+            piece_render(ren, pieces_tex[WHITE_PAWN_B], wI.w, wI.h, 1,6);     // White pawn at b2
+            piece_render(ren, pieces_tex[WHITE_PAWN_C], wI.w, wI.h, 2,6);     // White pawn at c2
+            piece_render(ren, pieces_tex[WHITE_PAWN_D], wI.w, wI.h, 3,6);     // White pawn at d2
+            piece_render(ren, pieces_tex[WHITE_PAWN_E], wI.w, wI.h, 4,6);     // White pawn at e2
+            piece_render(ren, pieces_tex[WHITE_PAWN_F], wI.w, wI.h, 5,6);     // White pawn at f2
+            piece_render(ren, pieces_tex[WHITE_PAWN_G], wI.w, wI.h, 6,6);     // White pawn at g2
+            piece_render(ren, pieces_tex[WHITE_PAWN_H], wI.w, wI.h, 7,6);     // White pawn at h2
             
             // Doubles (knights, bishops, rooks)
             piece_render(ren, BBknight_tex, wI.w, wI.h, 1,0);   // Black knight at b8
@@ -232,22 +242,21 @@ int main(int argc, char *argv[])
 
     // Shutdown
     SDL_DestroyTexture(pieces_tex[BLACK_PAWN_A]);
-    /* SDL_DestroyTexture(BApawn_tex); */
-    SDL_DestroyTexture(WApawn_tex);
-    SDL_DestroyTexture(BBpawn_tex);
-    SDL_DestroyTexture(WBpawn_tex);
-    SDL_DestroyTexture(BCpawn_tex);
-    SDL_DestroyTexture(WCpawn_tex);
-    SDL_DestroyTexture(BDpawn_tex);
-    SDL_DestroyTexture(WDpawn_tex);
-    SDL_DestroyTexture(BEpawn_tex);
-    SDL_DestroyTexture(WEpawn_tex);
-    SDL_DestroyTexture(BFpawn_tex);
-    SDL_DestroyTexture(WFpawn_tex);
-    SDL_DestroyTexture(BGpawn_tex);
-    SDL_DestroyTexture(WGpawn_tex);
-    SDL_DestroyTexture(BHpawn_tex);
-    SDL_DestroyTexture(WHpawn_tex);
+    SDL_DestroyTexture(pieces_tex[BLACK_PAWN_B]);
+    SDL_DestroyTexture(pieces_tex[BLACK_PAWN_C]);
+    SDL_DestroyTexture(pieces_tex[BLACK_PAWN_D]);
+    SDL_DestroyTexture(pieces_tex[BLACK_PAWN_E]);
+    SDL_DestroyTexture(pieces_tex[BLACK_PAWN_F]);
+    SDL_DestroyTexture(pieces_tex[BLACK_PAWN_G]);
+    SDL_DestroyTexture(pieces_tex[BLACK_PAWN_H]);
+    SDL_DestroyTexture(pieces_tex[WHITE_PAWN_A]);
+    SDL_DestroyTexture(pieces_tex[WHITE_PAWN_B]);
+    SDL_DestroyTexture(pieces_tex[WHITE_PAWN_C]);
+    SDL_DestroyTexture(pieces_tex[WHITE_PAWN_D]);
+    SDL_DestroyTexture(pieces_tex[WHITE_PAWN_E]);
+    SDL_DestroyTexture(pieces_tex[WHITE_PAWN_F]);
+    SDL_DestroyTexture(pieces_tex[WHITE_PAWN_G]);
+    SDL_DestroyTexture(pieces_tex[WHITE_PAWN_H]);
 
     SDL_DestroyTexture(Bking_tex);
     SDL_DestroyTexture(Wking_tex);
