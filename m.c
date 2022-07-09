@@ -29,6 +29,21 @@ SDL_Rect calc_border(int win_w, int win_h)
     return border;
 }
 
+void snap(int *x, int *y, int win_w, int win_h)
+{
+    /* *************DOC***************
+     * Snap mouse x,y to chess grid x,y
+     * *******************************/
+    SDL_Rect border = calc_border(win_w, win_h);
+    int tile_dim = calc_tile_dim(win_w, win_h);
+    int rel_x = *x - border.x;
+    if(rel_x<0) rel_x=0; else if(rel_x>(7*tile_dim)) rel_x = 7*tile_dim; // Clamp
+    *x = ((int)(rel_x/tile_dim))*tile_dim + border.x;
+    int rel_y = *y - border.y;
+    if(rel_y<0) rel_y=0; else if(rel_y>(7*tile_dim)) rel_y = 7*tile_dim; // Clamp
+    *y = ((int)(rel_y/tile_dim))*tile_dim + border.y;
+}
+
 void render_piece(SDL_Renderer *ren, SDL_Texture *piece_tex, int win_w, int win_h, int col, int row)
 {
     /* *************row, col coordinates***************
@@ -217,10 +232,10 @@ int main(int argc, char *argv[])
             int x,y;
             SDL_GetMouseState(&x, &y);
             // Convert mouse xy to chessboard square
-            /* SDL_Rect border = calc_border(wI.w, wI.h); */
-            int tile_dim = calc_tile_dim(wI.w, wI.h);
+            snap(&x, &y, wI.w, wI.h);
             mouse_tile.x=x;
             mouse_tile.y=y;
+            int tile_dim = calc_tile_dim(wI.w, wI.h);
             mouse_tile.w=tile_dim;
             mouse_tile.h=tile_dim;
         }
@@ -322,12 +337,13 @@ int main(int argc, char *argv[])
         }
         { // Present to screen
             SDL_RenderPresent(ren);
-            SDL_Delay(50);
+            SDL_Delay(10);
         }
     }
 
     // Shutdown
     SDL_DestroyTexture(Bking_tex);
+    SDL_DestroyTexture(Wking_tex);
     SDL_DestroyTexture(Bqueen_tex);
     SDL_DestroyTexture(Wqueen_tex);
     SDL_DestroyTexture(BHrook_tex);
