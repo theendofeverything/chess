@@ -2,11 +2,7 @@
  * Pieces : struct of arrays
  * *******************************/
 /* *************TODO***************
- * ~1. Highlight square of last move~
- * ~2. Undo history~
- * 1. Fix promotion bug in undo history: undo after promotion, pawn is gone
- * 2. Only permit legal moves
- * 3. Show art for captured pieces
+ * 1. Only permit legal moves
  * *******************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,16 +14,6 @@
 #include "calc.h"
 #include "piece.h"
 
-typedef struct
-{
-    char *name[NUM_PIECES];                                     // Name of each pieces
-    SDL_Texture *tex[NUM_PIECES];                               // Texture of each piece
-    int col[NUM_PIECES];                                        // Column coordinate of each piece
-    int row[NUM_PIECES];                                        // Row coordinate of each piece
-    bool color[NUM_PIECES];                                     // bool WHITE or BLACK for each piece
-    bool captured[NUM_PIECES];                                  // bool true: captured
-    bool promoted[NUM_PIECES];                                  // bool true: pawn was already promoted
-} Pieces;
 
 int main(int argc, char *argv[])
 {
@@ -161,6 +147,9 @@ int main(int argc, char *argv[])
         pieces.captured[i] = captured;
         pieces.promoted[i] = promoted;
     }
+    pieces.white_captured_col = 0;
+    pieces.black_captured_col = 0;
+
     // The piece we are working on the art for (drawn at A3 A4 in white and A5 A6 in black):
     SDL_Texture *Bpiece_tex  = NULL; piece_load_art(ren, &Bpiece_tex, "piece.txt", black);  // Load temp piece art
     SDL_Texture *Wpiece_tex  = NULL; piece_load_art(ren, &Wpiece_tex, "piece.txt", white);  // Load temp piece art
@@ -168,6 +157,7 @@ int main(int argc, char *argv[])
 
     // Game state
     bool quit = false;
+    bool show_debug_overlay = false;
     SDL_Rect mouse_tile;
     bool mouse_down = false;
     bool mouse_just_pressed = false;
@@ -201,6 +191,7 @@ int main(int argc, char *argv[])
                             piece_load_art(ren, &Bpiece_tex, "piece.txt", black);
                             piece_load_art(ren, &Wpiece_tex, "piece.txt", white);
                             break;
+                        case SDLK_TAB: show_debug_overlay = show_debug_overlay?false:true; break;
                         case SDLK_u:
                             // Undo
                             history_idx--;
@@ -410,6 +401,8 @@ int main(int argc, char *argv[])
                             if(  pieces.color[i] != pieces.color[LastActivePiece]  )
                             {
                                 pieces.captured[i] = true;
+                                if(pieces.color[i] == WHITE) pieces.col[i] = pieces.white_captured_col++;
+                                else pieces.col[i] = pieces.black_captured_col++;
                             }
                         }
                     }
@@ -580,11 +573,8 @@ int main(int argc, char *argv[])
             // Only render artwork for the actual 32 pieces
             for(int i=0; i<NUM_PIECES_TO_RENDER; i++)
             {
-                // TODO: render captured pieces special
-                if(  !(pieces.captured[i])  )
-                {
-                    piece_render(ren, pieces.tex[i], wI.w, wI.h, pieces.col[i], pieces.row[i]);
-                }
+                /* piece_render(ren, pieces.tex[i], wI.w, wI.h, pieces.col[i], pieces.row[i], pieces.color[i], pieces.captured[i]); */
+                Pieces_render(ren, wI.w, wI.h, pieces, i);
             }
         }
         { // Draw the temp piece (for working on drawings)
@@ -603,6 +593,7 @@ int main(int argc, char *argv[])
             piece_rect.y += tile_dim*1;                              // Place temp piece elsewhere
             SDL_RenderCopy(ren, Wpiece_tex, NULL, &piece_rect);
         }
+        if(show_debug_overlay)
         { // Debug overlay
             SDL_Texture *debug_overlay; textbox txb;
             { // Layout text

@@ -45,7 +45,20 @@ enum piece_name {
     NONE
 };
 
-void piece_render(SDL_Renderer *ren, SDL_Texture *piece_tex, int win_w, int win_h, int col, int row)
+typedef struct
+{
+    char *name[NUM_PIECES];                                     // Name of each pieces
+    SDL_Texture *tex[NUM_PIECES];                               // Texture of each piece
+    int col[NUM_PIECES];                                        // Column coordinate of each piece
+    int row[NUM_PIECES];                                        // Row coordinate of each piece
+    bool color[NUM_PIECES];                                     // bool WHITE or BLACK for each piece
+    bool captured[NUM_PIECES];                                  // bool true: captured
+    bool promoted[NUM_PIECES];                                  // bool true: pawn was already promoted
+    int white_captured_col;                                     // col to place next captured white piece
+    int black_captured_col;                                     // col to place next captured black piece
+} Pieces;
+
+void piece_render(SDL_Renderer *ren, SDL_Texture *piece_tex, int win_w, int win_h, int col, int row, bool captured, bool color)
 {
     /* *************row, col coordinates***************
      *    COLUMNS
@@ -59,16 +72,53 @@ void piece_render(SDL_Renderer *ren, SDL_Texture *piece_tex, int win_w, int win_
      *  6 w b w b w b w b
      *  7 b w b w b w b w
      * *******************************/
-    assert(row >= 0); assert(row < 8);
-    assert(col >= 0); assert(col < 8);
-    int tile_dim = calc_tile_dim(win_w, win_h);
-    int piece_dim = calc_piece_dim(win_w, win_h);
-    SDL_Rect border = calc_border(win_w, win_h);
-    int piece_x = (tile_dim - piece_dim)/2;             // Center piece x
-    int piece_y = (tile_dim - piece_dim)/2;             // Center piece y
-    piece_x += border.x; piece_y += border.y;           // Place piece
-    SDL_Rect piece_rect = {.x=piece_x+col*tile_dim, .y=piece_y+row*tile_dim, .w=piece_dim, .h=piece_dim};
+    SDL_Rect piece_rect;
+    if(captured)
+    { // Render captured at half-size
+        int tile_dim = calc_tile_dim(win_w, win_h);
+        int piece_dim = calc_piece_dim(win_w, win_h);
+        piece_dim /= 2; tile_dim /= 2;
+        int piece_x = (tile_dim - piece_dim)/2;             // Center piece x
+        int piece_y = (tile_dim - piece_dim)/2;             // Center piece y
+        SDL_Rect border = calc_border(win_w, win_h);
+        piece_x += border.x;
+        if(color==WHITE) piece_y += border.y + tile_dim;           // Place piece
+        else piece_y += border.y + tile_dim/4;           // Place piece
+        assert(row >= -1); assert(row < 9);
+        assert(col >= 0); assert(col < 8);
+        piece_rect = (SDL_Rect){.x=piece_x+col*tile_dim, .y=piece_y + row*2*tile_dim, .w=piece_dim, .h=piece_dim};
+    }
+    else
+    {
+        int tile_dim = calc_tile_dim(win_w, win_h);
+        int piece_dim = calc_piece_dim(win_w, win_h);
+        int piece_x = (tile_dim - piece_dim)/2;             // Center piece x
+        int piece_y = (tile_dim - piece_dim)/2;             // Center piece y
+        SDL_Rect border = calc_border(win_w, win_h);
+        piece_x += border.x; piece_y += border.y;           // Place piece
+        assert(row >= -1); assert(row < 9);
+        assert(col >= 0); assert(col < 8);
+        piece_rect = (SDL_Rect){.x=piece_x+col*tile_dim, .y=piece_y+row*tile_dim, .w=piece_dim, .h=piece_dim};
+    }
     SDL_RenderCopy(ren, piece_tex, NULL, &piece_rect);
+}
+
+void Pieces_render(SDL_Renderer *ren, int win_w, int win_h, Pieces pieces, int index)
+{
+    int col = pieces.col[index];
+    int row = pieces.row[index];
+    if(pieces.captured[index])                                  // If captured
+    {
+        if(pieces.color[index] == WHITE)                        // And white
+        {
+            row = -1;                                           // Render in row -1
+        }
+        else                                                    // If captured black
+        {
+            row = 8;                                            // Render in row 8
+        }
+    }
+    piece_render(ren, pieces.tex[index], win_w, win_h, col, row, pieces.captured[index], pieces.color[index]);
 }
 
 void piece_load_art(SDL_Renderer *ren, SDL_Texture **piece_tex, const char *file, SDL_Color color)
