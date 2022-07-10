@@ -43,51 +43,50 @@ int main(int argc, char *argv[])
     SDL_Texture *pieces_tex[NUM_PIECES];                        // Array of textures
     int pieces_col[NUM_PIECES];                                 // Array of col coord
     int pieces_row[NUM_PIECES];                                 // Array of row coord
-    /* bool pieces_drag[NUM_PIECES];                               // Array of mouse-drag state */
-    for(int i=0; i<16; i++)                                     // TODO: change to 32
+    for(int i=0; i<NUM_PIECES; i++)                                     // TODO: change to 32
     {
         char *file; SDL_Color color; int col; int row; // bool drag;
         switch(i)
         {
-            case BLACK_PAWN_A: file="pawn.txt"; color=black; col=0; row=1; /* drag=false; */ break;
-            case BLACK_PAWN_B: file="pawn.txt"; color=black; col=1; row=1; /* drag=false; */ break;
-            case BLACK_PAWN_C: file="pawn.txt"; color=black; col=2; row=1; /* drag=false; */ break;
-            case BLACK_PAWN_D: file="pawn.txt"; color=black; col=3; row=1; /* drag=false; */ break;
-            case BLACK_PAWN_E: file="pawn.txt"; color=black; col=4; row=1; /* drag=false; */ break;
-            case BLACK_PAWN_F: file="pawn.txt"; color=black; col=5; row=1; /* drag=false; */ break;
-            case BLACK_PAWN_G: file="pawn.txt"; color=black; col=6; row=1; /* drag=false; */ break;
-            case BLACK_PAWN_H: file="pawn.txt"; color=black; col=7; row=1; /* drag=false; */ break;
-            case WHITE_PAWN_A: file="pawn.txt"; color=white; col=0; row=6; /* drag=false; */ break;
-            case WHITE_PAWN_B: file="pawn.txt"; color=white; col=1; row=6; /* drag=false; */ break;
-            case WHITE_PAWN_C: file="pawn.txt"; color=white; col=2; row=6; /* drag=false; */ break;
-            case WHITE_PAWN_D: file="pawn.txt"; color=white; col=3; row=6; /* drag=false; */ break;
-            case WHITE_PAWN_E: file="pawn.txt"; color=white; col=4; row=6; /* drag=false; */ break;
-            case WHITE_PAWN_F: file="pawn.txt"; color=white; col=5; row=6; /* drag=false; */ break;
-            case WHITE_PAWN_G: file="pawn.txt"; color=white; col=6; row=6; /* drag=false; */ break;
-            case WHITE_PAWN_H: file="pawn.txt"; color=white; col=7; row=6; /* drag=false; */ break;
-            default: file="bad"; color=(SDL_Color){0,0,0,0}; col=-1;row=-1;/* drag=false; */ break;
+            case BLACK_PAWN_A: file="pawn.txt"; color=black; col=0; row=1;  break;
+            case BLACK_PAWN_B: file="pawn.txt"; color=black; col=1; row=1;  break;
+            case BLACK_PAWN_C: file="pawn.txt"; color=black; col=2; row=1;  break;
+            case BLACK_PAWN_D: file="pawn.txt"; color=black; col=3; row=1;  break;
+            case BLACK_PAWN_E: file="pawn.txt"; color=black; col=4; row=1;  break;
+            case BLACK_PAWN_F: file="pawn.txt"; color=black; col=5; row=1;  break;
+            case BLACK_PAWN_G: file="pawn.txt"; color=black; col=6; row=1;  break;
+            case BLACK_PAWN_H: file="pawn.txt"; color=black; col=7; row=1;  break;
+            case WHITE_PAWN_A: file="pawn.txt"; color=white; col=0; row=6;  break;
+            case WHITE_PAWN_B: file="pawn.txt"; color=white; col=1; row=6;  break;
+            case WHITE_PAWN_C: file="pawn.txt"; color=white; col=2; row=6;  break;
+            case WHITE_PAWN_D: file="pawn.txt"; color=white; col=3; row=6;  break;
+            case WHITE_PAWN_E: file="pawn.txt"; color=white; col=4; row=6;  break;
+            case WHITE_PAWN_F: file="pawn.txt"; color=white; col=5; row=6;  break;
+            case WHITE_PAWN_G: file="pawn.txt"; color=white; col=6; row=6;  break;
+            case WHITE_PAWN_H: file="pawn.txt"; color=white; col=7; row=6;  break;
+            case BLACK_KNIGHT_B: file="knight.txt"; color=black; col=1; row=0; break;
+            case BLACK_KNIGHT_G: file="knight.txt"; color=black; col=6; row=0; break;
+            case WHITE_KNIGHT_B: file="knight.txt"; color=white; col=1; row=7; break;
+            case WHITE_KNIGHT_G: file="knight.txt"; color=white; col=6; row=7; break;
+            case BLACK_BISHOP_C: file="bishop.txt"; color=black; col=2; row=0; break;
+            case BLACK_BISHOP_F: file="bishop.txt"; color=black; col=5; row=0; break;
+            case WHITE_BISHOP_C: file="bishop.txt"; color=white; col=2; row=7; break;
+            case WHITE_BISHOP_F: file="bishop.txt"; color=white; col=5; row=7; break;
+            case BLACK_ROOK_A: file="rook.txt"; color=black; col=0; row=0; break;
+            case BLACK_ROOK_H: file="rook.txt"; color=black; col=7; row=0; break;
+            case WHITE_ROOK_A: file="rook.txt"; color=white; col=0; row=7; break;
+            case WHITE_ROOK_H: file="rook.txt"; color=white; col=7; row=7; break;
+            case BLACK_QUEEN: file="queen.txt"; color=black; col=3; row=0; break;
+            case WHITE_QUEEN: file="queen.txt"; color=white; col=3; row=7; break;
+            case BLACK_KING: file="king.txt"; color=black; col=4; row=0; break;
+            case WHITE_KING: file="king.txt"; color=white; col=4; row=7; break;
+            default: file="bad"; color=(SDL_Color){0,0,0,0}; col=-1;row=-1; break;
         }
         /* printf("i: %d, file: %s\n", i, file); fflush(stdout); */
         // pieces_tex[BLACK_PAWN_A] = NULL; piece_load_art(ren, &pieces_tex[BLACK_PAWN_A], "pawn.txt", black);
         pieces_tex[i] = NULL; piece_load_art(ren, &(pieces_tex[i]), file, color);
-        pieces_col[i] = col; pieces_row[i] = row; // pieces_drag[i] = drag;
+        pieces_col[i] = col; pieces_row[i] = row;
     }
-    SDL_Texture *BBknight_tex = NULL; piece_load_art(ren, &BBknight_tex, "knight.txt", black);// Load black knight art
-    SDL_Texture *WBknight_tex = NULL; piece_load_art(ren, &WBknight_tex, "knight.txt", white);// Load white knight art
-    SDL_Texture *BGknight_tex = NULL; piece_load_art(ren, &BGknight_tex, "knight.txt", black);// Load black knight art
-    SDL_Texture *WGknight_tex = NULL; piece_load_art(ren, &WGknight_tex, "knight.txt", white);// Load white knight art
-    SDL_Texture *BCbishop_tex = NULL; piece_load_art(ren, &BCbishop_tex, "bishop.txt", black);// Load black bishop art
-    SDL_Texture *WCbishop_tex = NULL; piece_load_art(ren, &WCbishop_tex, "bishop.txt", white);// Load white bishop art
-    SDL_Texture *BFbishop_tex = NULL; piece_load_art(ren, &BFbishop_tex, "bishop.txt", black);// Load black bishop art
-    SDL_Texture *WFbishop_tex = NULL; piece_load_art(ren, &WFbishop_tex, "bishop.txt", white);// Load white bishop art
-    SDL_Texture *BArook_tex = NULL; piece_load_art(ren, &BArook_tex, "rook.txt", black);// Load black rook art
-    SDL_Texture *WArook_tex = NULL; piece_load_art(ren, &WArook_tex, "rook.txt", white);// Load white rook art
-    SDL_Texture *BHrook_tex = NULL; piece_load_art(ren, &BHrook_tex, "rook.txt", black);// Load black rook art
-    SDL_Texture *WHrook_tex = NULL; piece_load_art(ren, &WHrook_tex, "rook.txt", white);// Load white rook art
-    SDL_Texture *Bqueen_tex = NULL; piece_load_art(ren, &Bqueen_tex, "queen.txt", black);// Load black queen art
-    SDL_Texture *Wqueen_tex = NULL; piece_load_art(ren, &Wqueen_tex, "queen.txt", white);// Load white queen art
-    SDL_Texture *Bking_tex = NULL; piece_load_art(ren, &Bking_tex, "king.txt", black);// Load black king art
-    SDL_Texture *Wking_tex = NULL; piece_load_art(ren, &Wking_tex, "king.txt", white);// Load white king art
     // The piece we are working on the art for (drawn at A3 A4 in white and A5 A6 in black):
     SDL_Texture *Bpiece_tex  = NULL; piece_load_art(ren, &Bpiece_tex, "piece.txt", black);  // Load temp piece art
     SDL_Texture *Wpiece_tex  = NULL; piece_load_art(ren, &Wpiece_tex, "piece.txt", white);  // Load temp piece art
@@ -175,7 +174,6 @@ int main(int argc, char *argv[])
                     {
                         if((  pieces_col[i] == col  ) && (  pieces_row[i] == row  ))
                         {
-                            /* pieces_drag[i] = true; */
                             // Change the active piece
                             ActivePiece_drag = true;
                             ActivePiece_name = i;
@@ -229,31 +227,10 @@ int main(int argc, char *argv[])
             /* int piece_dim = (wI.w > wI.h) ? wI.h : wI.w; piece_dim /= 12; */
             int piece_dim = calc_piece_dim(wI.w, wI.h);
             // Pawns
-            for(int i=0; i<16; i++)                                     // TODO: change to 32
+            for(int i=0; i<NUM_PIECES; i++)
             {
                 piece_render(ren, pieces_tex[i], wI.w, wI.h, pieces_col[i], pieces_row[i]);
             }
-            
-            // Doubles (knights, bishops, rooks)
-            piece_render(ren, BBknight_tex, wI.w, wI.h, 1,0);   // Black knight at b8
-            piece_render(ren, WBknight_tex, wI.w, wI.h, 1,7);   // White knight at b1
-            piece_render(ren, BGknight_tex, wI.w, wI.h, 6,0);   // Black knight at g8
-            piece_render(ren, WGknight_tex, wI.w, wI.h, 6,7);   // White knight at g1
-
-            piece_render(ren, BCbishop_tex, wI.w, wI.h, 2,0);   // Black bishop at c8
-            piece_render(ren, WCbishop_tex, wI.w, wI.h, 2,7);   // White bishop at c1
-            piece_render(ren, BFbishop_tex, wI.w, wI.h, 5,0);   // Black bishop at f8
-            piece_render(ren, WFbishop_tex, wI.w, wI.h, 5,7);   // White bishop at f1
-
-            piece_render(ren, BArook_tex, wI.w, wI.h, 0,0);     // Black rook at a8
-            piece_render(ren, WArook_tex, wI.w, wI.h, 0,7);     // White rook at a1
-            piece_render(ren, BHrook_tex, wI.w, wI.h, 7,0);     // Black rook at h8
-            piece_render(ren, WHrook_tex, wI.w, wI.h, 7,7);     // White rook at h1
-            // Singles
-            piece_render(ren, Bqueen_tex, wI.w, wI.h, 3,0);     // Black queen at d8
-            piece_render(ren, Wqueen_tex, wI.w, wI.h, 3,7);     // White queen at d1
-            piece_render(ren, Bking_tex, wI.w, wI.h, 4,0);      // Black king at e8
-            piece_render(ren, Wking_tex, wI.w, wI.h, 4,7);      // White king at e1
             { // Temp piece (for working on drawings)
                 int piece_x = (tile_dim - piece_dim)/2;             // Center piece x
                 int piece_y = (tile_dim - piece_dim)/2;             // Center piece y
@@ -276,27 +253,10 @@ int main(int argc, char *argv[])
     }
 
     // Shutdown
-    for(int i=0; i<16; i++)
+    for(int i=0; i<NUM_PIECES; i++)
     {
         SDL_DestroyTexture(pieces_tex[i]);
     }
-
-    SDL_DestroyTexture(Bking_tex);
-    SDL_DestroyTexture(Wking_tex);
-    SDL_DestroyTexture(Bqueen_tex);
-    SDL_DestroyTexture(Wqueen_tex);
-    SDL_DestroyTexture(BHrook_tex);
-    SDL_DestroyTexture(WHrook_tex);
-    SDL_DestroyTexture(BArook_tex);
-    SDL_DestroyTexture(WArook_tex);
-    SDL_DestroyTexture(BCbishop_tex);
-    SDL_DestroyTexture(WCbishop_tex);
-    SDL_DestroyTexture(BFbishop_tex);
-    SDL_DestroyTexture(WFbishop_tex);
-    SDL_DestroyTexture(BBknight_tex);
-    SDL_DestroyTexture(WBknight_tex);
-    SDL_DestroyTexture(BGknight_tex);
-    SDL_DestroyTexture(WGknight_tex);
     SDL_DestroyTexture(Bpiece_tex);
     SDL_DestroyTexture(Wpiece_tex);
     SDL_DestroyRenderer(ren);
