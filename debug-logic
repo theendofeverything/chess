@@ -1,7 +1,8 @@
 if(mouse_just_pressed)
     if(mouse col,row matches a piece col,row)
-        ActivePiece_drag = true
-        ActivePiece_name = piece mouse clicked
+        if(piece is not captured)
+            ActivePiece_drag = true
+            ActivePiece_name = piece mouse clicked
 if(mouse_down)
     if(ActivePiece_drag)
         update position of active piece

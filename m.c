@@ -38,6 +38,62 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
+    // Setup debug overlay text using SDL_ttf
+    const char *font_file = "fonts/ProggyClean.ttf";            // Debug overlay font
+    TTF_Font *font = TTF_OpenFont(font_file, 16);               // Get the font
+    if(  font == NULL  )
+    { // Error handling: NULL probably means font file not found.
+        printf("Cannot open font file. Please check \"%s\" exists.", font_file);
+        SDL_DestroyRenderer(ren);
+        SDL_DestroyWindow(win);
+        TTF_Quit();
+        SDL_Quit();
+        return EXIT_FAILURE;
+    }
+    char debug_txt[1024];
+
+    char *pieces_name[NUM_PIECES];
+    for(int i=0; i<NUM_PIECES; i++)
+    {
+        switch(i)
+        {
+            case BLACK_PAWN_A:  pieces_name[i] = "BLACK_PAWN_A";    break;
+            case BLACK_PAWN_B:  pieces_name[i] = "BLACK_PAWN_B";    break;
+            case BLACK_PAWN_C:  pieces_name[i] = "BLACK_PAWN_C";    break;
+            case BLACK_PAWN_D:  pieces_name[i] = "BLACK_PAWN_D";    break;
+            case BLACK_PAWN_E:  pieces_name[i] = "BLACK_PAWN_E";    break;
+            case BLACK_PAWN_F:  pieces_name[i] = "BLACK_PAWN_F";    break;
+            case BLACK_PAWN_G:  pieces_name[i] = "BLACK_PAWN_G";    break;
+            case BLACK_PAWN_H:  pieces_name[i] = "BLACK_PAWN_H";    break;
+            case WHITE_PAWN_A:  pieces_name[i] = "WHITE_PAWN_A";    break;
+            case WHITE_PAWN_B:  pieces_name[i] = "WHITE_PAWN_B";    break;
+            case WHITE_PAWN_C:  pieces_name[i] = "WHITE_PAWN_C";    break;
+            case WHITE_PAWN_D:  pieces_name[i] = "WHITE_PAWN_D";    break;
+            case WHITE_PAWN_E:  pieces_name[i] = "WHITE_PAWN_E";    break;
+            case WHITE_PAWN_F:  pieces_name[i] = "WHITE_PAWN_F";    break;
+            case WHITE_PAWN_G:  pieces_name[i] = "WHITE_PAWN_G";    break;
+            case WHITE_PAWN_H:  pieces_name[i] = "WHITE_PAWN_H";    break;
+            case BLACK_KNIGHT_B:pieces_name[i] = "BLACK_KNIGHT_B";  break;
+            case BLACK_KNIGHT_G:pieces_name[i] = "BLACK_KNIGHT_G";  break;
+            case WHITE_KNIGHT_B:pieces_name[i] = "WHITE_KNIGHT_B";  break;
+            case WHITE_KNIGHT_G:pieces_name[i] = "WHITE_KNIGHT_G";  break;
+            case BLACK_BISHOP_C:pieces_name[i] = "BLACK_BISHOP_C";  break;
+            case BLACK_BISHOP_F:pieces_name[i] = "BLACK_BISHOP_F";  break;
+            case WHITE_BISHOP_C:pieces_name[i] = "WHITE_BISHOP_C";  break;
+            case WHITE_BISHOP_F:pieces_name[i] = "WHITE_BISHOP_F";  break;
+            case BLACK_ROOK_A:  pieces_name[i] = "BLACK_ROOK_A";    break;
+            case BLACK_ROOK_H:  pieces_name[i] = "BLACK_ROOK_H";    break;
+            case WHITE_ROOK_A:  pieces_name[i] = "WHITE_ROOK_A";    break;
+            case WHITE_ROOK_H:  pieces_name[i] = "WHITE_ROOK_H";    break;
+            case BLACK_QUEEN:   pieces_name[i] = "BLACK_QUEEN";     break;
+            case WHITE_QUEEN:   pieces_name[i] = "WHITE_QUEEN";     break;
+            case BLACK_KING:    pieces_name[i] = "BLACK_KING";      break;
+            case WHITE_KING:    pieces_name[i] = "WHITE_KING";      break;
+            case NONE:          pieces_name[i] = "NONE";            break;
+            default: pieces_name[i] = "ERROR"; break;
+        }
+    }
+
     SDL_Color black = {.r=0x11, .g=0x11, .b=0x00, .a=0xFF};
     SDL_Color white = {.r=0xEE, .g=0xEE, .b=0xDD, .a=0xFF};
     SDL_Texture *pieces_tex[NUM_PIECES];              // Array of textures
@@ -95,6 +151,7 @@ int main(int argc, char *argv[])
     SDL_Texture *Bpiece_tex  = NULL; piece_load_art(ren, &Bpiece_tex, "piece.txt", black);  // Load temp piece art
     SDL_Texture *Wpiece_tex  = NULL; piece_load_art(ren, &Wpiece_tex, "piece.txt", white);  // Load temp piece art
 
+
     // Game state
     bool quit = false;
     SDL_Rect mouse_tile;
@@ -103,6 +160,7 @@ int main(int argc, char *argv[])
     bool dropped_piece = false;
     // State of the active piece
     enum piece_name ActivePiece_name = NONE;                    // Active piece
+    enum piece_name LastActivePiece = NONE;                     // Last active AFTER a capture
     bool ActivePiece_drag = false;                              // Active piece dragged by mouse?
 
     // Game loop
@@ -169,14 +227,17 @@ int main(int argc, char *argv[])
                 { // If mousedown on a piece, pick it up
                     mouse_just_pressed = false;
                     // If a piece is at the mousedown col,row start dragging it
-                    for(int i=0; i<NUM_PIECES; i++)
+                    for(int i=0; i<NUM_PIECES_TO_RENDER; i++)
                     {
                         if((  pieces_col[i] == col  ) && (  pieces_row[i] == row  ))
                         {
-                            // Change the active piece
-                            ActivePiece_drag = true;
-                            ActivePiece_name = i;
-                            break;
+                            if(  pieces_captured[i] == false  )     // Ignore captured pieces
+                            {
+                                // Change the active piece
+                                ActivePiece_drag = true;
+                                ActivePiece_name = i;
+                                break;
+                            }
                         }
                     }
                 }
@@ -191,19 +252,96 @@ int main(int argc, char *argv[])
                 ActivePiece_drag = false;
                 dropped_piece = false;
                 // If a piece is at the dropped location, take it
-                for(enum piece_name i=0; i<NUM_PIECES; i++)
+                for(unsigned int i=0; i<NUM_PIECES_TO_RENDER; i++)
                 {
                     if(  i != ActivePiece_name  )               // Ignore active piece
                     {
                         if((  pieces_col[i] == col  ) && (  pieces_row[i] == row  ))
                         {
+                            // BUG IS HERE...
                             pieces_captured[i] = true;
+                            LastActivePiece = ActivePiece_name;
                             break;
                         }
                     }
                 }
                 ActivePiece_name = NONE;
             }
+        }
+        { // Update debug overlay text
+            char *d = debug_txt;
+            { const char *str = "Dragging piece: ";
+                const char *c = str;
+                while( *c != '\0' ) *d++ = *c++;                // Copy characters
+                *d = *c;                                        // Copy nul-terminator
+            }
+            { const char *str = (ActivePiece_drag == true)?"true":"false";
+                const char *c = str;
+                while( *c != '\0' ) *d++ = *c++;                // Copy characters
+                *d = *c;                                        // Copy nul-terminator
+            }
+            { const char *str = "\n";
+                const char *c = str;
+                while( *c != '\0' ) *d++ = *c++;                // Copy characters
+                *d = *c;                                        // Copy nul-terminator
+            }
+            { const char *str = "Active piece: ";
+                const char *c = str;
+                while( *c != '\0' ) *d++ = *c++;                // Copy characters
+                *d = *c;                                        // Copy nul-terminator
+            }
+            { const char *str = pieces_name[ActivePiece_name];
+                const char *c = str;
+                while( *c != '\0' ) *d++ = *c++;                // Copy characters
+                *d = *c;                                        // Copy nul-terminator
+            }
+            { const char *str = "\n";
+                const char *c = str;
+                while( *c != '\0' ) *d++ = *c++;                // Copy characters
+                *d = *c;                                        // Copy nul-terminator
+            }
+            { const char *str = "Captured: ";
+                const char *c = str;
+                while( *c != '\0' ) *d++ = *c++;                // Copy characters
+                *d = *c;                                        // Copy nul-terminator
+            }
+            { for(int i=0; i<NUM_PIECES; i++)
+                { if (pieces_captured[i])
+                    {
+                        { const char *str = pieces_name[i];
+                            const char *c = str;
+                            while( *c != '\0' ) *d++ = *c++;                // Copy characters
+                            *d = *c;                                        // Copy nul-terminator
+                        }
+                        { const char *str = ", ";
+                            const char *c = str;
+                            while( *c != '\0' ) *d++ = *c++;                // Copy characters
+                            *d = *c;                                        // Copy nul-terminator
+                        }
+                    }
+                }
+            }
+            { const char *str = "\n";
+                const char *c = str;
+                while( *c != '\0' ) *d++ = *c++;                // Copy characters
+                *d = *c;                                        // Copy nul-terminator
+            }
+            { const char *str = "Last active piece (after a capture): ";
+                const char *c = str;
+                while( *c != '\0' ) *d++ = *c++;                // Copy characters
+                *d = *c;                                        // Copy nul-terminator
+            }
+            { const char *str = pieces_name[LastActivePiece];
+                const char *c = str;
+                while( *c != '\0' ) *d++ = *c++;                // Copy characters
+                *d = *c;                                        // Copy nul-terminator
+            }
+            { const char *str = "\n";
+                const char *c = str;
+                while( *c != '\0' ) *d++ = *c++;                // Copy characters
+                *d = *c;                                        // Copy nul-terminator
+            }
+
         }
 
         // Render
@@ -272,6 +410,30 @@ int main(int argc, char *argv[])
                 SDL_RenderCopy(ren, Wpiece_tex, NULL, &piece_rect);
             }
         }
+        { // Debug overlay
+            SDL_Texture *debug_overlay; textbox txb;
+            { // Layout text
+                txb.text=debug_txt;
+                txb.rect=(SDL_Rect){0}; txb.fg=white;
+                const int margin = 10;
+                txb.rect.x = margin;
+                SDL_Surface *surf = TTF_RenderText_Blended_Wrapped(font, txb.text, txb.fg, wI.w-margin);
+                debug_overlay = SDL_CreateTextureFromSurface(ren,surf);
+                SDL_FreeSurface(surf);
+                SDL_QueryTexture(debug_overlay, NULL, NULL, &txb.rect.w, &txb.rect.h);
+            }
+            { // Render text
+                // box
+                SDL_SetRenderDrawColor(ren, 0,0,0,0x40); // Black 50%
+                SDL_Rect debug_overlay_bgnd = {.x=0, .y=0, .w=wI.w, .h=txb.rect.h};
+                /* SDL_Rect debug_overlay_bgnd = {.x=0, .y=0, .w=wI.w, .h=wI.h/2}; */
+                SDL_RenderFillRect(ren, &debug_overlay_bgnd);
+                // text
+                SDL_RenderCopy(ren, debug_overlay, NULL, &txb.rect);
+                // cleanup
+                SDL_DestroyTexture(debug_overlay);
+            }
+        }
         { // Present to screen
             SDL_RenderPresent(ren);
             SDL_Delay(10);
@@ -288,6 +450,7 @@ int main(int argc, char *argv[])
     SDL_DestroyTexture(Wpiece_tex);
     SDL_DestroyRenderer(ren);
     SDL_DestroyWindow(win);
+    TTF_CloseFont(font);
     TTF_Quit();
     SDL_Quit();
     return EXIT_SUCCESS;
