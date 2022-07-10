@@ -4,7 +4,8 @@
 #include "str.h"                                                // Bitmap from .txt file
 
 // Define array size and indices for referring to the 32 chess pieces
-#define NUM_PIECES 32
+#define NUM_PIECES_TO_RENDER 32
+#define NUM_PIECES (NUM_PIECES_TO_RENDER + 1)                   // +1 for NONE
 enum piece_name {
     BLACK_PAWN_A=0,
     BLACK_PAWN_B,
@@ -37,7 +38,8 @@ enum piece_name {
     BLACK_QUEEN,
     WHITE_QUEEN,
     BLACK_KING,
-    WHITE_KING
+    WHITE_KING,
+    NONE
 };
 
 void piece_render(SDL_Renderer *ren, SDL_Texture *piece_tex, int win_w, int win_h, int col, int row)

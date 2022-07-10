@@ -1,0 +1,19 @@
+if(mouse_just_pressed)
+    if(mouse col,row matches a piece col,row)
+        ActivePiece_drag = true
+        ActivePiece_name = piece mouse clicked
+if(mouse_down)
+    if(ActivePiece_drag)
+        update position of active piece
+if(MOUSEUP)
+    mouse_down=false
+    if(ActivePiece_drag)
+        dropped_piece = true
+if(dropped_piece)
+    ActivePiece_drag=false
+    dropped_piece=false
+        check for captured piece
+    ActivePiece_name = NONE;
+
+1. Add debug overlay: read value of variables (make sure above flow is what I think it is)
+2. Move logic elsewhere
