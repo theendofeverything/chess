@@ -4,7 +4,7 @@
  * pieces_row : array of row coordinates, one per chess piece
  * *******************************/
 /* *************TODO***************
- * 1. Highlight square of last move
+ * ~1. Highlight square of last move~
  * 2. Undo history
  * 3. Only permit legal moves
  * 4. Show art for captured pieces
@@ -465,6 +465,18 @@ int main(int argc, char *argv[])
                                     };
                     SDL_RenderFillRect(ren, &tile);
                 }
+            }
+        }
+        { // Highlight tile of last move
+            if(LastActivePiece != NONE)
+            {
+                int col = pieces_col[LastActivePiece];
+                int row = pieces_row[LastActivePiece];
+                int x = border.x + tile_dim*col;
+                int y = border.y + tile_dim*row;
+                SDL_SetRenderDrawColor(ren, 0xAF, 0xCF, 0x00, 0x7F);
+                SDL_Rect hi_tile = {.x=x, .y=y, .w=tile_dim, .h=tile_dim};
+                SDL_RenderFillRect(ren, &hi_tile);
             }
         }
         { // Temporary mouse test artwork for click happens good

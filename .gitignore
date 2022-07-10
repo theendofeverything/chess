@@ -3,3 +3,4 @@ headers.txt
 *.exe
 tags
 lib-tags
+temp.c
