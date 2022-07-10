@@ -1,3 +1,8 @@
+/* *************DOC***************
+ * pieces_tex : array of textures, one per chess piece
+ * pieces_col : array of col coordinates, one per chess piece
+ * pieces_row : array of row coordinates, one per chess piece
+ * *******************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -7,7 +12,6 @@
 #include <assert.h>
 #include "calc.h"
 #include "piece.h"
-
 
 int main(int argc, char *argv[])
 {
@@ -36,34 +40,37 @@ int main(int argc, char *argv[])
 
     SDL_Color black = {.r=0x11, .g=0x11, .b=0x00, .a=0xFF};
     SDL_Color white = {.r=0xEE, .g=0xEE, .b=0xDD, .a=0xFF};
-    SDL_Texture *pieces_tex[NUM_PIECES];
-    for(int i=0; i<16; i++)                                       // TODO: change to 32
+    SDL_Texture *pieces_tex[NUM_PIECES];                        // Array of textures
+    int pieces_col[NUM_PIECES];                                 // Array of col coord
+    int pieces_row[NUM_PIECES];                                 // Array of row coord
+    /* bool pieces_drag[NUM_PIECES];                               // Array of mouse-drag state */
+    for(int i=0; i<16; i++)                                     // TODO: change to 32
     {
-        /* char *file = NULL; SDL_Color color; */
-        char *file; SDL_Color color;
+        char *file; SDL_Color color; int col; int row; // bool drag;
         switch(i)
         {
-            case BLACK_PAWN_A: file = "pawn.txt"; color = black; break;
-            case BLACK_PAWN_B: file = "pawn.txt"; color = black; break;
-            case BLACK_PAWN_C: file = "pawn.txt"; color = black; break;
-            case BLACK_PAWN_D: file = "pawn.txt"; color = black; break;
-            case BLACK_PAWN_E: file = "pawn.txt"; color = black; break;
-            case BLACK_PAWN_F: file = "pawn.txt"; color = black; break;
-            case BLACK_PAWN_G: file = "pawn.txt"; color = black; break;
-            case BLACK_PAWN_H: file = "pawn.txt"; color = black; break;
-            case WHITE_PAWN_A: file = "pawn.txt"; color = white; break;
-            case WHITE_PAWN_B: file = "pawn.txt"; color = white; break;
-            case WHITE_PAWN_C: file = "pawn.txt"; color = white; break;
-            case WHITE_PAWN_D: file = "pawn.txt"; color = white; break;
-            case WHITE_PAWN_E: file = "pawn.txt"; color = white; break;
-            case WHITE_PAWN_F: file = "pawn.txt"; color = white; break;
-            case WHITE_PAWN_G: file = "pawn.txt"; color = white; break;
-            case WHITE_PAWN_H: file = "pawn.txt"; color = white; break;
-            default: break; // file="pawn.xt"; color = black; break;
+            case BLACK_PAWN_A: file="pawn.txt"; color=black; col=0; row=1; /* drag=false; */ break;
+            case BLACK_PAWN_B: file="pawn.txt"; color=black; col=1; row=1; /* drag=false; */ break;
+            case BLACK_PAWN_C: file="pawn.txt"; color=black; col=2; row=1; /* drag=false; */ break;
+            case BLACK_PAWN_D: file="pawn.txt"; color=black; col=3; row=1; /* drag=false; */ break;
+            case BLACK_PAWN_E: file="pawn.txt"; color=black; col=4; row=1; /* drag=false; */ break;
+            case BLACK_PAWN_F: file="pawn.txt"; color=black; col=5; row=1; /* drag=false; */ break;
+            case BLACK_PAWN_G: file="pawn.txt"; color=black; col=6; row=1; /* drag=false; */ break;
+            case BLACK_PAWN_H: file="pawn.txt"; color=black; col=7; row=1; /* drag=false; */ break;
+            case WHITE_PAWN_A: file="pawn.txt"; color=white; col=0; row=6; /* drag=false; */ break;
+            case WHITE_PAWN_B: file="pawn.txt"; color=white; col=1; row=6; /* drag=false; */ break;
+            case WHITE_PAWN_C: file="pawn.txt"; color=white; col=2; row=6; /* drag=false; */ break;
+            case WHITE_PAWN_D: file="pawn.txt"; color=white; col=3; row=6; /* drag=false; */ break;
+            case WHITE_PAWN_E: file="pawn.txt"; color=white; col=4; row=6; /* drag=false; */ break;
+            case WHITE_PAWN_F: file="pawn.txt"; color=white; col=5; row=6; /* drag=false; */ break;
+            case WHITE_PAWN_G: file="pawn.txt"; color=white; col=6; row=6; /* drag=false; */ break;
+            case WHITE_PAWN_H: file="pawn.txt"; color=white; col=7; row=6; /* drag=false; */ break;
+            default: file="bad"; color=(SDL_Color){0,0,0,0}; col=-1;row=-1;/* drag=false; */ break;
         }
         /* printf("i: %d, file: %s\n", i, file); fflush(stdout); */
-        pieces_tex[i] = NULL; piece_load_art(ren, &(pieces_tex[i]), file, color);
         // pieces_tex[BLACK_PAWN_A] = NULL; piece_load_art(ren, &pieces_tex[BLACK_PAWN_A], "pawn.txt", black);
+        pieces_tex[i] = NULL; piece_load_art(ren, &(pieces_tex[i]), file, color);
+        pieces_col[i] = col; pieces_row[i] = row; // pieces_drag[i] = drag;
     }
     SDL_Texture *BBknight_tex = NULL; piece_load_art(ren, &BBknight_tex, "knight.txt", black);// Load black knight art
     SDL_Texture *WBknight_tex = NULL; piece_load_art(ren, &WBknight_tex, "knight.txt", white);// Load white knight art
@@ -89,6 +96,9 @@ int main(int argc, char *argv[])
     bool quit = false;
     SDL_Rect mouse_tile;
     bool mouse_down = false;
+    // State of the active piece
+    enum piece_name ActivePiece_name = BLACK_PAWN_A;                   // Active piece
+    bool ActivePiece_drag = false;                                    // Active piece dragged by mouse?
 
     // Game loop
     while(quit == false)
@@ -118,6 +128,7 @@ int main(int argc, char *argv[])
                 if(e.type == SDL_MOUSEBUTTONUP)
                 {
                     mouse_down = false;
+                    ActivePiece_drag = false;
                 }
             }
         }
@@ -126,17 +137,53 @@ int main(int argc, char *argv[])
             const Uint8 *k = SDL_GetKeyboardState(NULL);        // Scan keys
             if(  k[SDL_SCANCODE_Q]  ) quit = true;              // q to quit
         }
-        // Mouse
-        {
-            int x,y;
-            SDL_GetMouseState(&x, &y);
-            // Convert mouse xy to chessboard square
-            calc_snap(&x, &y, wI.w, wI.h);
-            mouse_tile.x=x;
-            mouse_tile.y=y;
-            int tile_dim = calc_tile_dim(wI.w, wI.h);
-            mouse_tile.w=tile_dim;
-            mouse_tile.h=tile_dim;
+        // Mouse: mouse_down
+        { // Update state of ActivePiece
+            if(mouse_down)
+            {
+                int tile_dim = calc_tile_dim(wI.w, wI.h);
+                int x,y;                                        // Mouse x,y
+                { // Green square
+                    SDL_GetMouseState(&x, &y);
+                    // Snap mouse xy to chessboard square
+                    calc_snap(&x, &y, wI.w, wI.h);
+                    // Mouse tile is the green square
+                    mouse_tile.x=x;
+                    mouse_tile.y=y;
+                    mouse_tile.w=tile_dim;
+                    mouse_tile.h=tile_dim;
+                }
+                int col, row;
+                { // Convert mouse xy to chessboard col,row coordinates
+                    SDL_Rect border = calc_border(wI.w, wI.h);
+                    col = (int)(mouse_tile.x - border.x)/tile_dim;
+                    row = (int)(mouse_tile.y - border.y)/tile_dim;
+                }
+                if(ActivePiece_drag == true)
+                { // If dragging a piece, follow the mouse;
+                    // I want to do this, but I need to change my render function
+                    /* pieces_col[ActivePiece_name] = x; */
+                    /* pieces_row[ActivePiece_name] = y; */
+                    // Do this instead for now
+                    pieces_col[ActivePiece_name] = col;
+                    pieces_row[ActivePiece_name] = row;
+                }
+                else
+                { // If mousedown on a piece, pick it up
+                    // If a piece is at the mousedown col,row start dragging it
+                    for(int i=0; i<NUM_PIECES; i++)
+                    {
+                        if((  pieces_col[i] == col  ) && (  pieces_row[i] == row  ))
+                        {
+                            /* pieces_drag[i] = true; */
+                            // Change the active piece
+                            ActivePiece_drag = true;
+                            ActivePiece_name = i;
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
         // Render
@@ -173,7 +220,7 @@ int main(int argc, char *argv[])
         { // Temporary mouse test artwork for click happens good
             if(mouse_down)
             {
-                SDL_SetRenderDrawColor(ren, 0, 0xFF, 0, 0xFF);
+                SDL_SetRenderDrawColor(ren, 0, 0xFF, 0, 0x3F);
                 SDL_RenderFillRect(ren, &mouse_tile);
             }
         }
@@ -182,22 +229,10 @@ int main(int argc, char *argv[])
             /* int piece_dim = (wI.w > wI.h) ? wI.h : wI.w; piece_dim /= 12; */
             int piece_dim = calc_piece_dim(wI.w, wI.h);
             // Pawns
-            piece_render(ren, pieces_tex[BLACK_PAWN_A], wI.w, wI.h, 0,1);
-            piece_render(ren, pieces_tex[BLACK_PAWN_B], wI.w, wI.h, 1,1);     // Black pawn at b7
-            piece_render(ren, pieces_tex[BLACK_PAWN_C], wI.w, wI.h, 2,1);     // Black pawn at c7
-            piece_render(ren, pieces_tex[BLACK_PAWN_D], wI.w, wI.h, 3,1);     // Black pawn at d7
-            piece_render(ren, pieces_tex[BLACK_PAWN_E], wI.w, wI.h, 4,1);     // Black pawn at e7
-            piece_render(ren, pieces_tex[BLACK_PAWN_F], wI.w, wI.h, 5,1);     // Black pawn at f7
-            piece_render(ren, pieces_tex[BLACK_PAWN_G], wI.w, wI.h, 6,1);     // Black pawn at g7
-            piece_render(ren, pieces_tex[BLACK_PAWN_H], wI.w, wI.h, 7,1);     // Black pawn at h7
-            piece_render(ren, pieces_tex[WHITE_PAWN_A], wI.w, wI.h, 0,6);     // White pawn at a2
-            piece_render(ren, pieces_tex[WHITE_PAWN_B], wI.w, wI.h, 1,6);     // White pawn at b2
-            piece_render(ren, pieces_tex[WHITE_PAWN_C], wI.w, wI.h, 2,6);     // White pawn at c2
-            piece_render(ren, pieces_tex[WHITE_PAWN_D], wI.w, wI.h, 3,6);     // White pawn at d2
-            piece_render(ren, pieces_tex[WHITE_PAWN_E], wI.w, wI.h, 4,6);     // White pawn at e2
-            piece_render(ren, pieces_tex[WHITE_PAWN_F], wI.w, wI.h, 5,6);     // White pawn at f2
-            piece_render(ren, pieces_tex[WHITE_PAWN_G], wI.w, wI.h, 6,6);     // White pawn at g2
-            piece_render(ren, pieces_tex[WHITE_PAWN_H], wI.w, wI.h, 7,6);     // White pawn at h2
+            for(int i=0; i<16; i++)                                     // TODO: change to 32
+            {
+                piece_render(ren, pieces_tex[i], wI.w, wI.h, pieces_col[i], pieces_row[i]);
+            }
             
             // Doubles (knights, bishops, rooks)
             piece_render(ren, BBknight_tex, wI.w, wI.h, 1,0);   // Black knight at b8
@@ -241,22 +276,10 @@ int main(int argc, char *argv[])
     }
 
     // Shutdown
-    SDL_DestroyTexture(pieces_tex[BLACK_PAWN_A]);
-    SDL_DestroyTexture(pieces_tex[BLACK_PAWN_B]);
-    SDL_DestroyTexture(pieces_tex[BLACK_PAWN_C]);
-    SDL_DestroyTexture(pieces_tex[BLACK_PAWN_D]);
-    SDL_DestroyTexture(pieces_tex[BLACK_PAWN_E]);
-    SDL_DestroyTexture(pieces_tex[BLACK_PAWN_F]);
-    SDL_DestroyTexture(pieces_tex[BLACK_PAWN_G]);
-    SDL_DestroyTexture(pieces_tex[BLACK_PAWN_H]);
-    SDL_DestroyTexture(pieces_tex[WHITE_PAWN_A]);
-    SDL_DestroyTexture(pieces_tex[WHITE_PAWN_B]);
-    SDL_DestroyTexture(pieces_tex[WHITE_PAWN_C]);
-    SDL_DestroyTexture(pieces_tex[WHITE_PAWN_D]);
-    SDL_DestroyTexture(pieces_tex[WHITE_PAWN_E]);
-    SDL_DestroyTexture(pieces_tex[WHITE_PAWN_F]);
-    SDL_DestroyTexture(pieces_tex[WHITE_PAWN_G]);
-    SDL_DestroyTexture(pieces_tex[WHITE_PAWN_H]);
+    for(int i=0; i<16; i++)
+    {
+        SDL_DestroyTexture(pieces_tex[i]);
+    }
 
     SDL_DestroyTexture(Bking_tex);
     SDL_DestroyTexture(Wking_tex);

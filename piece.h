@@ -6,7 +6,7 @@
 // Define array size and indices for referring to the 32 chess pieces
 #define NUM_PIECES 32
 enum piece_name {
-    BLACK_PAWN_A,
+    BLACK_PAWN_A=0,
     BLACK_PAWN_B,
     BLACK_PAWN_C,
     BLACK_PAWN_D,
