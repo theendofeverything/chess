@@ -2,7 +2,10 @@
 #define __PIECE_H__
 #include <SDL.h>
 #include "str.h"                                                // Bitmap from .txt file
+#include <stdbool.h>
 
+#define WHITE true
+#define BLACK false
 // Define array size and indices for referring to the 32 chess pieces
 #define NUM_PIECES_TO_RENDER 32
 #define NUM_PIECES (NUM_PIECES_TO_RENDER + 1)                   // +1 for NONE

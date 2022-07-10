@@ -3,6 +3,12 @@
  * pieces_col : array of col coordinates, one per chess piece
  * pieces_row : array of row coordinates, one per chess piece
  * *******************************/
+/* *************TODO***************
+ * 1. Highlight square of last move
+ * 2. Undo history
+ * 3. Only permit legal moves
+ * 4. Show art for captured pieces
+ * *******************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -99,6 +105,7 @@ int main(int argc, char *argv[])
     SDL_Texture *pieces_tex[NUM_PIECES];              // Array of textures
     int pieces_col[NUM_PIECES];                                 // Array of col coord
     int pieces_row[NUM_PIECES];                                 // Array of row coord
+    bool pieces_color[NUM_PIECES];
     bool pieces_captured[NUM_PIECES];                           // Array of captured states
     for(int i=0; i<NUM_PIECES; i++)
     {
@@ -144,7 +151,7 @@ int main(int argc, char *argv[])
         pieces_tex[i] = NULL;
         // Only load artwork for the actual 32 pieces
         if(i<=NUM_PIECES_TO_RENDER) piece_load_art(ren, &(pieces_tex[i]), file, color);
-        pieces_col[i] = col; pieces_row[i] = row;
+        pieces_col[i] = col; pieces_row[i] = row; pieces_color[i] = (color.r == white.r)?WHITE:BLACK;
         pieces_captured[i] = captured;
     }
     // The piece we are working on the art for (drawn at A3 A4 in white and A5 A6 in black):
@@ -181,6 +188,90 @@ int main(int argc, char *argv[])
                             piece_load_art(ren, &Bpiece_tex, "piece.txt", black);
                             piece_load_art(ren, &Wpiece_tex, "piece.txt", white);
                             break;
+                        case SDLK_q: // Promotion
+                            if( LastActivePiece < 16 )              // Means it's a pawn
+                            {
+                                if( pieces_color[LastActivePiece] == WHITE )
+                                {
+                                    if( pieces_row[LastActivePiece] == 0 )
+                                    {
+                                        piece_load_art(ren, &pieces_tex[LastActivePiece], "queen.txt", white);
+                                        pieces_name[LastActivePiece] = "WHITE_PQUEEN";
+                                    }
+                                }
+                                else
+                                {
+                                    if( pieces_row[LastActivePiece] == 7 )
+                                    {
+                                        piece_load_art(ren, &pieces_tex[LastActivePiece], "queen.txt", black);
+                                        pieces_name[LastActivePiece] = "BLACK_PQUEEN";
+                                    }
+                                }
+                            }
+                            break;
+                        case SDLK_r: // Promotion
+                            if( LastActivePiece < 16 )              // Means it's a pawn
+                            {
+                                if( pieces_color[LastActivePiece] == WHITE )
+                                {
+                                    if( pieces_row[LastActivePiece] == 0 )
+                                    {
+                                        piece_load_art(ren, &pieces_tex[LastActivePiece], "rook.txt", white);
+                                        pieces_name[LastActivePiece] = "WHITE_PROOK";
+                                    }
+                                }
+                                else
+                                {
+                                    if( pieces_row[LastActivePiece] == 7 )
+                                    {
+                                        piece_load_art(ren, &pieces_tex[LastActivePiece], "rook.txt", black);
+                                        pieces_name[LastActivePiece] = "BLACK_PROOK";
+                                    }
+                                }
+                            }
+                            break;
+                        case SDLK_b: // Promotion
+                            if( LastActivePiece < 16 )              // Means it's a pawn
+                            {
+                                if( pieces_color[LastActivePiece] == WHITE )
+                                {
+                                    if( pieces_row[LastActivePiece] == 0 )
+                                    {
+                                        piece_load_art(ren, &pieces_tex[LastActivePiece], "bishop.txt", white);
+                                        pieces_name[LastActivePiece] = "WHITE_PBISHOP";
+                                    }
+                                }
+                                else
+                                {
+                                    if( pieces_row[LastActivePiece] == 7 )
+                                    {
+                                        piece_load_art(ren, &pieces_tex[LastActivePiece], "bishop.txt", black);
+                                        pieces_name[LastActivePiece] = "BLACK_PBISHOP";
+                                    }
+                                }
+                            }
+                            break;
+                        case SDLK_k: // Promotion
+                            if( LastActivePiece < 16 )              // Means it's a pawn
+                            {
+                                if( pieces_color[LastActivePiece] == WHITE )
+                                {
+                                    if( pieces_row[LastActivePiece] == 0 )
+                                    {
+                                        piece_load_art(ren, &pieces_tex[LastActivePiece], "knight.txt", white);
+                                        pieces_name[LastActivePiece] = "WHITE_PKNIGHT";
+                                    }
+                                }
+                                else
+                                {
+                                    if( pieces_row[LastActivePiece] == 7 )
+                                    {
+                                        piece_load_art(ren, &pieces_tex[LastActivePiece], "knight.txt", black);
+                                        pieces_name[LastActivePiece] = "BLACK_PKNIGHT";
+                                    }
+                                }
+                            }
+                            break;
                         default: break;
                     }
                 }
@@ -199,30 +290,30 @@ int main(int argc, char *argv[])
         { // Filtered
             SDL_PumpEvents();                                   // Update event queue
             const Uint8 *k = SDL_GetKeyboardState(NULL);        // Scan keys
-            if(  k[SDL_SCANCODE_Q]  ) quit = true;              // q to quit
+            if(  k[SDL_SCANCODE_ESCAPE]  ) quit = true;              // q to quit
         }
         // Mouse: mouse_down
         { // Update state of ActivePiece
             int tile_dim = calc_tile_dim(wI.w, wI.h);
             int x,y;                                            // Mouse pixel x,y
             int col, row;                                       // Mouse chess col,row
+            { // Green square
+                SDL_GetMouseState(&x, &y);
+                // Snap mouse xy to chessboard square
+                calc_snap(&x, &y, wI.w, wI.h);
+                // Mouse tile is the green square
+                mouse_tile.x=x;
+                mouse_tile.y=y;
+                mouse_tile.w=tile_dim;
+                mouse_tile.h=tile_dim;
+            }
+            { // Convert mouse xy to chessboard col,row coordinates
+                SDL_Rect border = calc_border(wI.w, wI.h);
+                col = (int)(mouse_tile.x - border.x)/tile_dim;
+                row = (int)(mouse_tile.y - border.y)/tile_dim;
+            }
             if(mouse_down)
             {
-                { // Green square
-                    SDL_GetMouseState(&x, &y);
-                    // Snap mouse xy to chessboard square
-                    calc_snap(&x, &y, wI.w, wI.h);
-                    // Mouse tile is the green square
-                    mouse_tile.x=x;
-                    mouse_tile.y=y;
-                    mouse_tile.w=tile_dim;
-                    mouse_tile.h=tile_dim;
-                }
-                { // Convert mouse xy to chessboard col,row coordinates
-                    SDL_Rect border = calc_border(wI.w, wI.h);
-                    col = (int)(mouse_tile.x - border.x)/tile_dim;
-                    row = (int)(mouse_tile.y - border.y)/tile_dim;
-                }
                 if(mouse_just_pressed)
                 { // If mousedown on a piece, pick it up
                     mouse_just_pressed = false;
@@ -251,6 +342,8 @@ int main(int argc, char *argv[])
             {
                 ActivePiece_drag = false;
                 dropped_piece = false;
+                LastActivePiece = ActivePiece_name;
+                ActivePiece_name = NONE;
                 // If a piece is at the dropped location, take it
                 for(unsigned int i=0; i<NUM_PIECES_TO_RENDER; i++)
                 {
@@ -258,14 +351,13 @@ int main(int argc, char *argv[])
                     {
                         if((  pieces_col[i] == col  ) && (  pieces_row[i] == row  ))
                         {
-                            // BUG IS HERE...
-                            pieces_captured[i] = true;
-                            LastActivePiece = ActivePiece_name;
-                            break;
+                            if(  pieces_color[i] != pieces_color[LastActivePiece]  )
+                            {
+                                pieces_captured[i] = true;
+                            }
                         }
                     }
                 }
-                ActivePiece_name = NONE;
             }
         }
         { // Update debug overlay text
