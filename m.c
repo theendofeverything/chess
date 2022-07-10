@@ -26,6 +26,7 @@ typedef struct
     int row[NUM_PIECES];                                        // Row coordinate of each piece
     bool color[NUM_PIECES];                                     // bool WHITE or BLACK for each piece
     bool captured[NUM_PIECES];                                  // bool true: captured
+    bool promoted[NUM_PIECES];                                  // bool true: pawn was already promoted
 } Pieces;
 
 int main(int argc, char *argv[])
@@ -114,42 +115,42 @@ int main(int argc, char *argv[])
     SDL_Color white = {.r=0xEE, .g=0xEE, .b=0xDD, .a=0xFF};
     for(int i=0; i<NUM_PIECES; i++)
     {
-        char *file; SDL_Color color; int col; int row; bool captured;
+        char *file; SDL_Color color; int col; int row; bool captured; bool promoted;
         switch(i)
         {
-            case BLACK_PAWN_A: file="pawn.txt"; color=black; col=0; row=1;     captured=false; break;
-            case BLACK_PAWN_B: file="pawn.txt"; color=black; col=1; row=1;     captured=false; break;
-            case BLACK_PAWN_C: file="pawn.txt"; color=black; col=2; row=1;     captured=false; break;
-            case BLACK_PAWN_D: file="pawn.txt"; color=black; col=3; row=1;     captured=false; break;
-            case BLACK_PAWN_E: file="pawn.txt"; color=black; col=4; row=1;     captured=false; break;
-            case BLACK_PAWN_F: file="pawn.txt"; color=black; col=5; row=1;     captured=false; break;
-            case BLACK_PAWN_G: file="pawn.txt"; color=black; col=6; row=1;     captured=false; break;
-            case BLACK_PAWN_H: file="pawn.txt"; color=black; col=7; row=1;     captured=false; break;
-            case WHITE_PAWN_A: file="pawn.txt"; color=white; col=0; row=6;     captured=false; break;
-            case WHITE_PAWN_B: file="pawn.txt"; color=white; col=1; row=6;     captured=false; break;
-            case WHITE_PAWN_C: file="pawn.txt"; color=white; col=2; row=6;     captured=false; break;
-            case WHITE_PAWN_D: file="pawn.txt"; color=white; col=3; row=6;     captured=false; break;
-            case WHITE_PAWN_E: file="pawn.txt"; color=white; col=4; row=6;     captured=false; break;
-            case WHITE_PAWN_F: file="pawn.txt"; color=white; col=5; row=6;     captured=false; break;
-            case WHITE_PAWN_G: file="pawn.txt"; color=white; col=6; row=6;     captured=false; break;
-            case WHITE_PAWN_H: file="pawn.txt"; color=white; col=7; row=6;     captured=false; break;
-            case BLACK_KNIGHT_B: file="knight.txt"; color=black; col=1; row=0; captured=false; break;
-            case BLACK_KNIGHT_G: file="knight.txt"; color=black; col=6; row=0; captured=false; break;
-            case WHITE_KNIGHT_B: file="knight.txt"; color=white; col=1; row=7; captured=false; break;
-            case WHITE_KNIGHT_G: file="knight.txt"; color=white; col=6; row=7; captured=false; break;
-            case BLACK_BISHOP_C: file="bishop.txt"; color=black; col=2; row=0; captured=false; break;
-            case BLACK_BISHOP_F: file="bishop.txt"; color=black; col=5; row=0; captured=false; break;
-            case WHITE_BISHOP_C: file="bishop.txt"; color=white; col=2; row=7; captured=false; break;
-            case WHITE_BISHOP_F: file="bishop.txt"; color=white; col=5; row=7; captured=false; break;
-            case BLACK_ROOK_A: file="rook.txt"; color=black; col=0; row=0;     captured=false; break;
-            case BLACK_ROOK_H: file="rook.txt"; color=black; col=7; row=0;     captured=false; break;
-            case WHITE_ROOK_A: file="rook.txt"; color=white; col=0; row=7;     captured=false; break;
-            case WHITE_ROOK_H: file="rook.txt"; color=white; col=7; row=7;     captured=false; break;
-            case BLACK_QUEEN: file="queen.txt"; color=black; col=3; row=0;     captured=false; break;
-            case WHITE_QUEEN: file="queen.txt"; color=white; col=3; row=7;     captured=false; break;
-            case BLACK_KING: file="king.txt"; color=black; col=4; row=0;       captured=false; break;
-            case WHITE_KING: file="king.txt"; color=white; col=4; row=7;       captured=false; break;
-            default: file="bad"; color=(SDL_Color){0,0,0,0}; col=-1;row=-1;    captured=false; break;
+            case BLACK_PAWN_A: file="pawn.txt"; color=black; col=0; row=1;     captured=false;promoted=false; break;
+            case BLACK_PAWN_B: file="pawn.txt"; color=black; col=1; row=1;     captured=false;promoted=false; break;
+            case BLACK_PAWN_C: file="pawn.txt"; color=black; col=2; row=1;     captured=false;promoted=false; break;
+            case BLACK_PAWN_D: file="pawn.txt"; color=black; col=3; row=1;     captured=false;promoted=false; break;
+            case BLACK_PAWN_E: file="pawn.txt"; color=black; col=4; row=1;     captured=false;promoted=false; break;
+            case BLACK_PAWN_F: file="pawn.txt"; color=black; col=5; row=1;     captured=false;promoted=false; break;
+            case BLACK_PAWN_G: file="pawn.txt"; color=black; col=6; row=1;     captured=false;promoted=false; break;
+            case BLACK_PAWN_H: file="pawn.txt"; color=black; col=7; row=1;     captured=false;promoted=false; break;
+            case WHITE_PAWN_A: file="pawn.txt"; color=white; col=0; row=6;     captured=false;promoted=false; break;
+            case WHITE_PAWN_B: file="pawn.txt"; color=white; col=1; row=6;     captured=false;promoted=false; break;
+            case WHITE_PAWN_C: file="pawn.txt"; color=white; col=2; row=6;     captured=false;promoted=false; break;
+            case WHITE_PAWN_D: file="pawn.txt"; color=white; col=3; row=6;     captured=false;promoted=false; break;
+            case WHITE_PAWN_E: file="pawn.txt"; color=white; col=4; row=6;     captured=false;promoted=false; break;
+            case WHITE_PAWN_F: file="pawn.txt"; color=white; col=5; row=6;     captured=false;promoted=false; break;
+            case WHITE_PAWN_G: file="pawn.txt"; color=white; col=6; row=6;     captured=false;promoted=false; break;
+            case WHITE_PAWN_H: file="pawn.txt"; color=white; col=7; row=6;     captured=false;promoted=false; break;
+            case BLACK_KNIGHT_B: file="knight.txt"; color=black; col=1; row=0; captured=false;promoted=false; break;
+            case BLACK_KNIGHT_G: file="knight.txt"; color=black; col=6; row=0; captured=false;promoted=false; break;
+            case WHITE_KNIGHT_B: file="knight.txt"; color=white; col=1; row=7; captured=false;promoted=false; break;
+            case WHITE_KNIGHT_G: file="knight.txt"; color=white; col=6; row=7; captured=false;promoted=false; break;
+            case BLACK_BISHOP_C: file="bishop.txt"; color=black; col=2; row=0; captured=false;promoted=false; break;
+            case BLACK_BISHOP_F: file="bishop.txt"; color=black; col=5; row=0; captured=false;promoted=false; break;
+            case WHITE_BISHOP_C: file="bishop.txt"; color=white; col=2; row=7; captured=false;promoted=false; break;
+            case WHITE_BISHOP_F: file="bishop.txt"; color=white; col=5; row=7; captured=false;promoted=false; break;
+            case BLACK_ROOK_A: file="rook.txt"; color=black; col=0; row=0;     captured=false;promoted=false; break;
+            case BLACK_ROOK_H: file="rook.txt"; color=black; col=7; row=0;     captured=false;promoted=false; break;
+            case WHITE_ROOK_A: file="rook.txt"; color=white; col=0; row=7;     captured=false;promoted=false; break;
+            case WHITE_ROOK_H: file="rook.txt"; color=white; col=7; row=7;     captured=false;promoted=false; break;
+            case BLACK_QUEEN: file="queen.txt"; color=black; col=3; row=0;     captured=false;promoted=false; break;
+            case WHITE_QUEEN: file="queen.txt"; color=white; col=3; row=7;     captured=false;promoted=false; break;
+            case BLACK_KING: file="king.txt"; color=black; col=4; row=0;       captured=false;promoted=false; break;
+            case WHITE_KING: file="king.txt"; color=white; col=4; row=7;       captured=false;promoted=false; break;
+            default: file="bad"; color=(SDL_Color){0,0,0,0}; col=-1;row=-1;    captured=false;promoted=false; break;
         }
         /* printf("i: %d, file: %s\n", i, file); fflush(stdout); */
         // pieces.tex[BLACK_PAWN_A] = NULL; piece_load_art(ren, &pieces.tex[BLACK_PAWN_A], "pawn.txt", black);
@@ -158,6 +159,7 @@ int main(int argc, char *argv[])
         if(i<=NUM_PIECES_TO_RENDER) piece_load_art(ren, &(pieces.tex[i]), file, color);
         pieces.col[i] = col; pieces.row[i] = row; pieces.color[i] = (color.r == white.r)?WHITE:BLACK;
         pieces.captured[i] = captured;
+        pieces.promoted[i] = promoted;
     }
     // The piece we are working on the art for (drawn at A3 A4 in white and A5 A6 in black):
     SDL_Texture *Bpiece_tex  = NULL; piece_load_art(ren, &Bpiece_tex, "piece.txt", black);  // Load temp piece art
@@ -191,6 +193,7 @@ int main(int argc, char *argv[])
             {
                 if(e.type == SDL_KEYDOWN)
                 {
+                    bool promotion = false;                     // Test for promotion
                     switch(e.key.keysym.sym)
                     {
                         // SPACE to reload artwork
@@ -199,103 +202,133 @@ int main(int argc, char *argv[])
                             piece_load_art(ren, &Wpiece_tex, "piece.txt", white);
                             break;
                         case SDLK_u:
+                            // Undo
                             history_idx--;
                             if(history_idx < 0) history_idx = 0;
                             pieces = history[history_idx];
                             break;
+                        case SDLK_r:
+                            history_idx++; if(history_idx > history_end) history_idx = history_end;
+                            pieces = history[history_idx];
+                            break;
                         case SDLK_q: // Promotion
-                            if( LastActivePiece < 16 )              // Means it's a pawn
+                            if(  !pieces.promoted[LastActivePiece]  )   // Cannot promote if already promoted
                             {
-                                if( pieces.color[LastActivePiece] == WHITE )
+                                if( LastActivePiece < 16 )              // Means it's a pawn
                                 {
-                                    if( pieces.row[LastActivePiece] == 0 )
+                                    if( pieces.color[LastActivePiece] == WHITE )
                                     {
-                                        piece_load_art(ren, &pieces.tex[LastActivePiece], "queen.txt", white);
-                                        pieces.name[LastActivePiece] = "WHITE_PQUEEN";
+                                        if( pieces.row[LastActivePiece] == 0 )
+                                        {
+                                            pieces.tex[LastActivePiece] = pieces.tex[WHITE_QUEEN];
+                                            pieces.name[LastActivePiece] = "WHITE_PQUEEN";
+                                            pieces.promoted[LastActivePiece] = true;
+                                            promotion = true;
+                                        }
                                     }
-                                }
-                                else
-                                {
-                                    if( pieces.row[LastActivePiece] == 7 )
+                                    else
                                     {
-                                        piece_load_art(ren, &pieces.tex[LastActivePiece], "queen.txt", black);
-                                        pieces.name[LastActivePiece] = "BLACK_PQUEEN";
+                                        if( pieces.row[LastActivePiece] == 7 )
+                                        {
+                                            pieces.tex[LastActivePiece] = pieces.tex[BLACK_QUEEN];
+                                            pieces.name[LastActivePiece] = "BLACK_PQUEEN";
+                                            pieces.promoted[LastActivePiece] = true;
+                                            promotion = true;
+                                        }
                                     }
                                 }
                             }
                             break;
-                        case SDLK_r: // Promotion or Redo history
-                            bool promotion = false;
-                            if( LastActivePiece < 16 )              // Means it's a pawn
+                        case SDLK_c: // Promotion
+                            if(  !pieces.promoted[LastActivePiece]  )   // Cannot promote if already promoted
                             {
-                                if( pieces.color[LastActivePiece] == WHITE )
+                                if( LastActivePiece < 16 )              // Means it's a pawn
                                 {
-                                    if( pieces.row[LastActivePiece] == 0 )
+                                    if( pieces.color[LastActivePiece] == WHITE )
                                     {
-                                        piece_load_art(ren, &pieces.tex[LastActivePiece], "rook.txt", white);
-                                        pieces.name[LastActivePiece] = "WHITE_PROOK";
-                                        promotion = true;
+                                        if( pieces.row[LastActivePiece] == 0 )
+                                        {
+                                            pieces.tex[LastActivePiece] = pieces.tex[WHITE_ROOK_A];
+                                            pieces.name[LastActivePiece] = "WHITE_PROOK";
+                                            pieces.promoted[LastActivePiece] = true;
+                                            promotion = true;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if( pieces.row[LastActivePiece] == 7 )
+                                        {
+                                            pieces.tex[LastActivePiece] = pieces.tex[BLACK_ROOK_A];
+                                            pieces.name[LastActivePiece] = "BLACK_PROOK";
+                                            pieces.promoted[LastActivePiece] = true;
+                                            promotion = true;
+                                        }
                                     }
                                 }
-                                else
-                                {
-                                    if( pieces.row[LastActivePiece] == 7 )
-                                    {
-                                        piece_load_art(ren, &pieces.tex[LastActivePiece], "rook.txt", black);
-                                        pieces.name[LastActivePiece] = "BLACK_PROOK";
-                                        promotion = true;
-                                    }
-                                }
-                            }
-                            if(  !promotion  )                  // Redo history
-                            {
-                                history_idx++; if(history_idx > history_end) history_idx = history_end;
-                                pieces = history[history_idx];
                             }
                             break;
                         case SDLK_b: // Promotion
-                            if( LastActivePiece < 16 )              // Means it's a pawn
+                            if(  !pieces.promoted[LastActivePiece]  )   // Cannot promote if already promoted
                             {
-                                if( pieces.color[LastActivePiece] == WHITE )
+                                if( LastActivePiece < 16 )              // Means it's a pawn
                                 {
-                                    if( pieces.row[LastActivePiece] == 0 )
+                                    if( pieces.color[LastActivePiece] == WHITE )
                                     {
-                                        piece_load_art(ren, &pieces.tex[LastActivePiece], "bishop.txt", white);
-                                        pieces.name[LastActivePiece] = "WHITE_PBISHOP";
+                                        if( pieces.row[LastActivePiece] == 0 )
+                                        {
+                                            pieces.tex[LastActivePiece] = pieces.tex[WHITE_BISHOP_C];
+                                            pieces.name[LastActivePiece] = "WHITE_PBISHOP";
+                                            pieces.promoted[LastActivePiece] = true;
+                                            promotion = true;
+                                        }
                                     }
-                                }
-                                else
-                                {
-                                    if( pieces.row[LastActivePiece] == 7 )
+                                    else
                                     {
-                                        piece_load_art(ren, &pieces.tex[LastActivePiece], "bishop.txt", black);
-                                        pieces.name[LastActivePiece] = "BLACK_PBISHOP";
+                                        if( pieces.row[LastActivePiece] == 7 )
+                                        {
+                                            pieces.tex[LastActivePiece] = pieces.tex[BLACK_BISHOP_C];
+                                            pieces.name[LastActivePiece] = "BLACK_PBISHOP";
+                                            pieces.promoted[LastActivePiece] = true;
+                                            promotion = true;
+                                        }
                                     }
                                 }
                             }
                             break;
                         case SDLK_k: // Promotion
-                            if( LastActivePiece < 16 )              // Means it's a pawn
+                            if(  !pieces.promoted[LastActivePiece]  )   // Cannot promote if already promoted
                             {
-                                if( pieces.color[LastActivePiece] == WHITE )
+                                if( LastActivePiece < 16 )              // Means it's a pawn
                                 {
-                                    if( pieces.row[LastActivePiece] == 0 )
+                                    if( pieces.color[LastActivePiece] == WHITE )
                                     {
-                                        piece_load_art(ren, &pieces.tex[LastActivePiece], "knight.txt", white);
-                                        pieces.name[LastActivePiece] = "WHITE_PKNIGHT";
+                                        if( pieces.row[LastActivePiece] == 0 )
+                                        {
+                                            pieces.tex[LastActivePiece] = pieces.tex[WHITE_KNIGHT_B];
+                                            pieces.name[LastActivePiece] = "WHITE_PKNIGHT";
+                                            pieces.promoted[LastActivePiece] = true;
+                                            promotion = true;
+                                        }
                                     }
-                                }
-                                else
-                                {
-                                    if( pieces.row[LastActivePiece] == 7 )
+                                    else
                                     {
-                                        piece_load_art(ren, &pieces.tex[LastActivePiece], "knight.txt", black);
-                                        pieces.name[LastActivePiece] = "BLACK_PKNIGHT";
+                                        if( pieces.row[LastActivePiece] == 7 )
+                                        {
+                                            pieces.tex[LastActivePiece] = pieces.tex[BLACK_KNIGHT_B];
+                                            pieces.name[LastActivePiece] = "BLACK_PKNIGHT";
+                                            pieces.promoted[LastActivePiece] = true;
+                                            promotion = true;
+                                        }
                                     }
                                 }
                             }
                             break;
                         default: break;
+                    }
+                    if(promotion)                               // Record promotion in history
+                    {
+                        history_idx++; if(history_idx > 1023) history_idx = 1023; history_end = history_idx;
+                        history[history_idx] = pieces;
                     }
                 }
                 if(e.type == SDL_MOUSEBUTTONDOWN)
@@ -409,7 +442,7 @@ int main(int argc, char *argv[])
                 while( *c != '\0' ) *d++ = *c++;                // Copy characters
                 *d = *c;                                        // Copy nul-terminator
             }
-            { const char *str = "\t";
+            { const char *str = " | ";
                 const char *c = str;
                 while( *c != '\0' ) *d++ = *c++;                // Copy characters
                 *d = *c;                                        // Copy nul-terminator
@@ -424,7 +457,7 @@ int main(int argc, char *argv[])
                 while( *c != '\0' ) *d++ = *c++;                // Copy characters
                 *d = *c;                                        // Copy nul-terminator
             }
-            { const char *str = "\t";
+            { const char *str = " | ";
                 const char *c = str;
                 while( *c != '\0' ) *d++ = *c++;                // Copy characters
                 *d = *c;                                        // Copy nul-terminator
@@ -470,13 +503,18 @@ int main(int argc, char *argv[])
                 while( *c != '\0' ) *d++ = *c++;                // Copy characters
                 *d = *c;                                        // Copy nul-terminator
             }
-            { const char *str = "Last active piece (after a capture): ";
+            { const char *str = "Last active piece: ";
                 const char *c = str;
                 while( *c != '\0' ) *d++ = *c++;                // Copy characters
                 *d = *c;                                        // Copy nul-terminator
             }
             { const char *str = pieces.name[LastActivePiece];
                 const char *c = str;
+                while( *c != '\0' ) *d++ = *c++;                // Copy characters
+                *d = *c;                                        // Copy nul-terminator
+            }
+            { char str[4]; sprintf(str, " (%d)", LastActivePiece);     // int to string
+                char *c = str;
                 while( *c != '\0' ) *d++ = *c++;                // Copy characters
                 *d = *c;                                        // Copy nul-terminator
             }
@@ -538,10 +576,7 @@ int main(int argc, char *argv[])
                 SDL_RenderFillRect(ren, &mouse_tile);
             }
         }
-        { // pieces
-            // Make rectangle for where to draw piece
-            /* int piece_dim = (wI.w > wI.h) ? wI.h : wI.w; piece_dim /= 12; */
-            int piece_dim = calc_piece_dim(wI.w, wI.h);
+        { // Draw the chess pieces
             // Only render artwork for the actual 32 pieces
             for(int i=0; i<NUM_PIECES_TO_RENDER; i++)
             {
@@ -551,20 +586,22 @@ int main(int argc, char *argv[])
                     piece_render(ren, pieces.tex[i], wI.w, wI.h, pieces.col[i], pieces.row[i]);
                 }
             }
-            { // Temp piece (for working on drawings)
-                int piece_x = (tile_dim - piece_dim)/2;             // Center piece x
-                int piece_y = (tile_dim - piece_dim)/2;             // Center piece y
-                piece_x += border.x; piece_y += border.y;           // Place piece
-                piece_y += tile_dim*2;                              // Place temp piece elsewhere
-                SDL_Rect piece_rect = {.x=piece_x, .y=piece_y, .w=piece_dim, .h=piece_dim};
-                SDL_RenderCopy(ren, Bpiece_tex, NULL, &piece_rect);
-                piece_rect.y += tile_dim*1;                              // Place temp piece elsewhere
-                SDL_RenderCopy(ren, Bpiece_tex, NULL, &piece_rect);
-                piece_rect.y += tile_dim*1;                              // Place temp piece elsewhere
-                SDL_RenderCopy(ren, Wpiece_tex, NULL, &piece_rect);
-                piece_rect.y += tile_dim*1;                              // Place temp piece elsewhere
-                SDL_RenderCopy(ren, Wpiece_tex, NULL, &piece_rect);
-            }
+        }
+        { // Draw the temp piece (for working on drawings)
+            // Make rectangle for where to draw piece
+            int piece_dim = calc_piece_dim(wI.w, wI.h);
+            int piece_x = (tile_dim - piece_dim)/2;             // Center piece x
+            int piece_y = (tile_dim - piece_dim)/2;             // Center piece y
+            piece_x += border.x; piece_y += border.y;           // Place piece
+            piece_y += tile_dim*2;                              // Place temp piece elsewhere
+            SDL_Rect piece_rect = {.x=piece_x, .y=piece_y, .w=piece_dim, .h=piece_dim};
+            SDL_RenderCopy(ren, Bpiece_tex, NULL, &piece_rect);
+            piece_rect.y += tile_dim*1;                              // Place temp piece elsewhere
+            SDL_RenderCopy(ren, Bpiece_tex, NULL, &piece_rect);
+            piece_rect.y += tile_dim*1;                              // Place temp piece elsewhere
+            SDL_RenderCopy(ren, Wpiece_tex, NULL, &piece_rect);
+            piece_rect.y += tile_dim*1;                              // Place temp piece elsewhere
+            SDL_RenderCopy(ren, Wpiece_tex, NULL, &piece_rect);
         }
         { // Debug overlay
             SDL_Texture *debug_overlay; textbox txb;
