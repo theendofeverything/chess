@@ -84,8 +84,8 @@ void piece_render(SDL_Renderer *ren, SDL_Texture *piece_tex, int win_w, int win_
         piece_x += border.x;
         if(color==WHITE) piece_y += border.y + tile_dim;           // Place piece
         else piece_y += border.y + tile_dim/4;           // Place piece
-        assert(row >= -1); assert(row < 9);
-        assert(col >= 0); assert(col < 8);
+        /* assert(row >= -1); assert(row < 9); */
+        /* assert(col >= 0); assert(col < 8); */
         piece_rect = (SDL_Rect){.x=piece_x+col*tile_dim, .y=piece_y + row*2*tile_dim, .w=piece_dim, .h=piece_dim};
     }
     else
@@ -96,8 +96,8 @@ void piece_render(SDL_Renderer *ren, SDL_Texture *piece_tex, int win_w, int win_
         int piece_y = (tile_dim - piece_dim)/2;             // Center piece y
         SDL_Rect border = calc_border(win_w, win_h);
         piece_x += border.x; piece_y += border.y;           // Place piece
-        assert(row >= -1); assert(row < 9);
-        assert(col >= 0); assert(col < 8);
+        /* assert(row >= -1); assert(row < 9); */
+        /* assert(col >= 0); assert(col < 8); */
         piece_rect = (SDL_Rect){.x=piece_x+col*tile_dim, .y=piece_y+row*tile_dim, .w=piece_dim, .h=piece_dim};
     }
     SDL_RenderCopy(ren, piece_tex, NULL, &piece_rect);

@@ -8,7 +8,7 @@ typedef struct
     const char *text;
     SDL_Rect rect;
     SDL_Color fg;
-} textbox;
+} TextBox;
 
 #endif // __TEXT_H__
 
