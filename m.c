@@ -568,7 +568,9 @@ int main(int argc, char *argv[])
                 while( *c != '\0' ) *d++ = *c++;                // Copy characters
                 *d = *c;                                        // Copy nul-terminator
             }
-            { char str[4]; sprintf(str, " (%d)", LastActivePiece);     // int to string
+            /* { char str[4]; sprintf(str, " (%d)", LastActivePiece);     // int to string */
+            /* Each char is more than one byte? I get a format-overflow warning.*/
+            { char str[16]; sprintf(str, " (%d)", LastActivePiece);     // int to string
                 char *c = str;
                 while( *c != '\0' ) *d++ = *c++;                // Copy characters
                 *d = *c;                                        // Copy nul-terminator

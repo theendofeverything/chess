@@ -4,7 +4,9 @@ LDLIBS  = `pkgconf --libs sdl2`
 CFLAGS += `pkgconf --cflags SDL2_ttf`
 LDLIBS += `pkgconf --libs SDL2_ttf`
 
-SRC = m
+SRC = m # Use "m.c", not "new.c"; the latter freezes, I don't remember what I was working on there.
+# Default build target: make $(SRC).exe from $(SRC).c
+default: $(SRC)
 
 .PHONY: show-tags
 show-tags: tags
