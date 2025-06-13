@@ -1,8 +1,8 @@
 CFLAGS = -Wall -Wextra -pedantic -std=c11
-CFLAGS += `pkgconf --cflags sdl2`
-LDLIBS  = `pkgconf --libs sdl2`
-CFLAGS += `pkgconf --cflags SDL2_ttf`
-LDLIBS += `pkgconf --libs SDL2_ttf`
+CFLAGS += `pkg-config --cflags sdl2`
+LDLIBS  = `pkg-config --libs sdl2`
+CFLAGS += `pkg-config --cflags SDL2_ttf`
+LDLIBS += `pkg-config --libs SDL2_ttf`
 
 SRC = m # Use "m.c", not "new.c"; the latter freezes, I don't remember what I was working on there.
 # Default build target: make $(SRC).exe from $(SRC).c
